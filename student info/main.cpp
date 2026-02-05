@@ -1,8 +1,9 @@
 #include <iostream>
 #include <string>
 #include <cctype>
+#include <vector>
 
-static int* spliteArr(std::string arr) {
+static auto spliteArr(std::string& arr) {
 	int static split_num[10] = {};
 	int count = 0;
 	int start_point = 0;
@@ -30,121 +31,155 @@ static int* spliteArr(std::string arr) {
 	}
 	return split_num;
 }
-static int total_score(int arr[]) {
-	float total = arr[0] * 1.5 + arr[1] * 1.5 + arr[2] * 2.0 + arr[3] * 2.0 + arr[4] * 1.8 + arr[5] * 2.5 + arr[6] * 1.5 + arr[7] * 1.5 + arr[8] * 1.5 + arr[9] * 1.5;
-	return total;
-}
+
+enum Subject{
+reading,
+literature,
+math1,
+math2,
+english,
+history,
+physics,
+chemical,
+biology,
+geology
+};
+
+class Score {
+private:
+	int score;
+public:
+	Score(int score):score(score){}
+	
+	int getScore() { return score; }
+	void setScore(int sc) { score = sc;}
+	float getWeight(Subject sub) {
+		switch (sub) {
+		case reading:
+		case literature:
+			return score*1.5;
+		case math1:
+		case math2:
+			return score * 2.0;
+		case english:
+			return score * 1.8;
+		case history:
+			return score * 2.5;
+		case physics:
+		case chemical:
+		case biology:
+		case geology:
+			return score * 1.5;
+		}
+	}
+};
+
+class Student {
+private:
+	int num;
+	std::string name;
+	std::vector<Score> scores;
+public:
+	Student(int num, std::string name):num(num),name(name){}
+	auto getStudent() const { return std::make_pair(num, name); }
+	void setNum(int n) { num = n; }
+	void setName(std::string n) { name = n; }
+	void addScore(int sc) {scores.push_back(sc);}
+	void setScore(int n,int sc) {
+		scores[n].setScore(sc);
+	}
+
+	int getScore(Subject sub){
+		switch (sub) {
+		case reading:
+			return scores[0].getScore();
+		case literature:
+			return scores[1].getScore();
+		case math1:
+			return scores[2].getScore();
+		case math2:
+			return scores[3].getScore();
+		case english:
+			return scores[4].getScore();
+		case history:
+			return scores[5].getScore();
+		case physics:
+			return scores[6].getScore();
+		case chemical:
+			return scores[7].getScore();
+		case biology:
+			return scores[8].getScore();
+		case geology:
+			return scores[9].getScore();
+		}
+	}
+	float getTotal() {
+		float total = scores[0].getWeight(reading) + scores[1].getWeight(literature) + scores[2].getWeight(math1) + scores[3].getWeight(math2) + scores[4].getWeight(english) + scores[5].getWeight(history) + scores[6].getWeight(physics) + scores[7].getWeight(chemical) + scores[8].getWeight(biology) + scores[9].getWeight(geology);
+		return total;
+	}
+};
 
 class Students_info {
 	//멤버 변수
 private:
-	struct Score_info {
-		int reading, literature, math1, math2, english, history, physics, chemical, bio, geo;
-		float total;
-	};
-	struct Student_list {
-		int num;
-		std::string name;
-		struct Score_info info;
-	};
-
-	Student_list student_list[40] = { 0 };
-	std::string name_idx[11] = { "\t 독서: ", "\t 문학: ", "\t 수학1: ", "\t 수학2: ", "\t 영어: ", "\t 한국사: ", "\t 과학: ","\t 화학: ", "\t 생명과학: ", "\t 지구과학: ", "\t 총점: " };
-	int* score_idx[40][10] = { 0 };
+	std::vector<Student> students;
 
 public:
 	void search_info() {
 		bool check = false;
-
-		for (int i = 0; i < 40; ++i) {
-			score_idx[i][0] = &student_list[i].info.reading;
-			score_idx[i][1] = &student_list[i].info.literature;
-			score_idx[i][2] = &student_list[i].info.math1;
-			score_idx[i][3] = &student_list[i].info.math2;
-			score_idx[i][4] = &student_list[i].info.english;
-			score_idx[i][5] = &student_list[i].info.history;
-			score_idx[i][6] = &student_list[i].info.physics;
-			score_idx[i][7] = &student_list[i].info.chemical;
-			score_idx[i][8] = &student_list[i].info.bio;
-			score_idx[i][9] = &student_list[i].info.geo;
-		}
-
-		for (int i = 0; i < 40; ++i) {
-			if (student_list[i].num == 0 && student_list[i].name.empty()) {
-				continue;
+		if (students.size() != 0) {
+			for (auto& elem : students) {
+				std::cout << elem.getStudent().first << "\t" << elem.getStudent().second;
+				std::cout << "\t독서: " << elem.getScore(reading);
+				std::cout << "\t문학: " << elem.getScore(literature);
+				std::cout << "\t수학1: " << elem.getScore(math1);
+				std::cout << "\t수학2: " << elem.getScore(math2);
+				std::cout << "\t영어: " << elem.getScore(english);
+				std::cout << "\t역사: " << elem.getScore(history);
+				std::cout << "\t물리: " << elem.getScore(physics);
+				std::cout << "\t화학: " << elem.getScore(chemical);
+				std::cout << "\t생명과학: " << elem.getScore(biology);
+				std::cout << "\t지구과학: " << elem.getScore(geology);
+				std::cout << "\t총점: " << elem.getTotal();
 			}
-
-			std::cout << student_list[i].num << "\t" << student_list[i].name;
-			for (int j = 0; j < 10; ++j) std::cout << name_idx[j] << *score_idx[i][j];
-			std::cout << name_idx[10] << student_list[i].info.total << std::endl;
-			check = true;
 		}
-		if (check == false) std::cout << "저장된 학생 정보 없음";
-	};
+		else { std::cout << "저장된 학생 정보 없음"; }
+	}
+
 
 	void search_part_info() {
-		for (int i = 0; i < 40; ++i) {
-			score_idx[i][0] = &student_list[i].info.reading;
-			score_idx[i][1] = &student_list[i].info.literature;
-			score_idx[i][2] = &student_list[i].info.math1;
-			score_idx[i][3] = &student_list[i].info.math2;
-			score_idx[i][4] = &student_list[i].info.english;
-			score_idx[i][5] = &student_list[i].info.history;
-			score_idx[i][6] = &student_list[i].info.physics;
-			score_idx[i][7] = &student_list[i].info.chemical;
-			score_idx[i][8] = &student_list[i].info.bio;
-			score_idx[i][9] = &student_list[i].info.geo;
-		}
-
 		int chk_num;
 		std::string chk_name;
 		std::cout << "조회하려는 학생의 번호 : ";
 		std::cin >> chk_num;
 		std::cout << "조회하려는 학생의 이름 : ";
 		std::cin >> chk_name;
-		bool check = check_info(chk_num, chk_name);
-
-		if (check == false) {
-			std::cout << "해당 학생 존재하지 않음";
-			return;
-		}
-
-		for (int i = 0; i < 40; ++i) {
-			if (student_list[i].num == chk_num && student_list[i].name == chk_name) {
-				std::cout << student_list[i].num << "\t" << student_list[i].name << "\t";
-				for (int j = 0; j < 10; ++j) std::cout << name_idx[j] << *score_idx[i][j];
-				std::cout << name_idx[10] << student_list[i].info.total << std::endl;
-			}
-			/*else continue;*/
-		}
-	}
-
-	bool check_info(int chk_num, std::string chk_name) {
 		bool check = false;
-		for (int i = 0; i < 40; ++i) {
-			if (student_list[i].num == chk_num && student_list[i].name == chk_name) {
-				check = true;
+
+		if (students.size() != 0) {
+			for (auto& elem : students) {
+				if ((elem.getStudent().first == chk_num) && (elem.getStudent().second == chk_name)) {
+					check = true;
+					std::cout << elem.getStudent().first << " " << elem.getStudent().second;
+					std::cout << "\t독서: " << elem.getScore(reading);
+					std::cout << "\t문학: " << elem.getScore(literature);
+					std::cout << "\t수학1: " << elem.getScore(math1);
+					std::cout << "\t수학2: " << elem.getScore(math2);
+					std::cout << "\t영어: " << elem.getScore(english);
+					std::cout << "\t역사: " << elem.getScore(history);
+					std::cout << "\t물리: " << elem.getScore(physics);
+					std::cout << "\t화학: " << elem.getScore(chemical);
+					std::cout << "\t생명과학: " << elem.getScore(biology);
+					std::cout << "\t지구과학: " << elem.getScore(geology);
+					std::cout << "\t총점: " << elem.getTotal();
+				}
 			}
-			else continue;
+			if (check != true) { std::cout << "해당 학생 존재하지 없음"; }
 		}
-		return check;
+		else { std::cout << "저장된 학생 정보 없음"; }
 	}
 
 	void input_info() {
-		for (int i = 0; i < 40; ++i) {
-			score_idx[i][0] = &student_list[i].info.reading;
-			score_idx[i][1] = &student_list[i].info.literature;
-			score_idx[i][2] = &student_list[i].info.math1;
-			score_idx[i][3] = &student_list[i].info.math2;
-			score_idx[i][4] = &student_list[i].info.english;
-			score_idx[i][5] = &student_list[i].info.history;
-			score_idx[i][6] = &student_list[i].info.physics;
-			score_idx[i][7] = &student_list[i].info.chemical;
-			score_idx[i][8] = &student_list[i].info.bio;
-			score_idx[i][9] = &student_list[i].info.geo;
-		}
-
-		bool check = false;
 		std::string new_name;
 		int new_num;
 		std::string new_score;
@@ -157,87 +192,60 @@ public:
 		std::cout << "각 과목의 점수(예 70 80 90): ";
 		std::getline(std::cin, new_score);
 
-		int* splite_score = spliteArr(new_score);
+		auto splite_score = spliteArr(new_score);
 
-		for (int i = 0; i < 40; ++i) {
-			if (student_list[i].num == 0 && student_list[i].name.empty()) {
-				student_list[i].name = new_name;
-				student_list[i].num = new_num;
-				for (int j = 0; j < 10; j++) {
-					*score_idx[i][j] = splite_score[j];
-				}
-				float total = total_score(splite_score);
-				student_list[i].info.total = total;
-				check = true;
-				break;
+		if (students.size() != 40) {
+			students.push_back(Student(new_num, new_name));
+			for (int i = 0; i < 10; i++) {
+				//students[students.size()].addScore(splite_score[i]);
+				students.back().addScore(splite_score[i]);
 			}
 		}
-		if (check == false) std::cout << "정원 초과";
+		else { std::cout << "정원 초과"; }
+
 	}
 
 	void edit_info() {
-		for (int i = 0; i < 40; ++i) {
-			score_idx[i][0] = &student_list[i].info.reading;
-			score_idx[i][1] = &student_list[i].info.literature;
-			score_idx[i][2] = &student_list[i].info.math1;
-			score_idx[i][3] = &student_list[i].info.math2;
-			score_idx[i][4] = &student_list[i].info.english;
-			score_idx[i][5] = &student_list[i].info.history;
-			score_idx[i][6] = &student_list[i].info.physics;
-			score_idx[i][7] = &student_list[i].info.chemical;
-			score_idx[i][8] = &student_list[i].info.bio;
-			score_idx[i][9] = &student_list[i].info.geo;
-		}
-
 		std::string name, edit_name;
-		int  num, val, studetidx;
+		int  num, val;
 		int edit_num = 0, edit_score = 0;
+		bool check = false;
 
 		std::cout << "수정하려는 학생의 번호 : ";
 		std::cin >> num;
 		std::cout << "수정하려는 학생의 이름 : ";
 		std::cin >> name;
 
-		bool check = check_info(num, name);
-		if (check == false) {
-			std::cout << "해당 학생 존재하지 않음";
-			return;
-		}
+		if (students.size() != 0) {
+			for (auto& elem : students) {
+				if ((elem.getStudent().first == num) && (elem.getStudent().second == name)) {
+					check = true;
+					std::cout << "\t [1] 번호  [2] 이름  [3] 독서  [4] 문학  [5]수학1  [6]수학2  [7]영어  [8] 한국사  [9] 물리  [10] 화학  [11] 생명과학  [12] 지구과학" << std::endl;
+					std::cout << "수정하려는 항목을 설정해 주세요 : ";
+					std::cin >> val;
 
-		for (int i = 0; i < 40; ++i) {
-			if (student_list[i].num == num && student_list[i].name == name) {
-				std::cout << student_list[i].num << "\t" << student_list[i].name << "\t";
-				studetidx = i;
+					std::cout << "내용을 입력하세요 : ";
+					if (val == 1) {
+						std::cin >> edit_num;
+						elem.setNum(edit_num);
+					}
+					else if (val == 2) {
+						std::cin >> edit_name;
+						elem.setName(edit_name);
+					}
+					else if (val < 13 && val >= 3) {
+						std::cin >> edit_score;
+						elem.setScore(val - 3, edit_score);
+					}
+					else {
+						std::cout << "ERROR";
+						edit_info();
+					}
+				}
 			}
-			else continue;
+			if (check != true) std::cout << "해당하는 학생 없음";
 		}
-
-
-		std::cout << "\t [1] 번호  [2] 이름  [3] 독서  [4] 문학  [5]수학1  [6]수학2  [7]영어  [8] 한국사  [9] 물리  [10] 화학  [11] 생명과학  [12] 지구과학" << std::endl;
-		std::cout << "수정하려는 항목을 설정해 주세요 : ";
-		std::cin >> val;
-
-		if (val == 1) {
-			std::cout << "내용을 입력하세요 : ";
-			std::cin >> edit_num;
-			student_list[studetidx].num = edit_num;
-		}
-		else if (val == 2) {
-			std::cout << "내용을 입력하세요 : ";
-			std::cin >> edit_name;
-			student_list[studetidx].name = edit_name;
-		}
-		else if (val < 13 && val >= 3) {
-			std::cout << "내용을 입력하세요 : ";
-			std::cin >> edit_score;
-			*score_idx[studetidx][val - 3] = edit_score;
-			float total = total_score(*score_idx[studetidx]);
-			student_list[studetidx].info.total = total;
-		}
-		else {
-			std::cout << "잘 못 입력하셨습니다." << std::endl;
-			edit_info();
-		}
+		else { "정보 비어있음"; }
 	}
 	void del_info() {
 		int chk_num;
@@ -247,12 +255,16 @@ public:
 		std::cout << "삭제하려는 학생의 이름 : ";
 		std::cin >> chk_name;
 
-		for (int i = 0; i < 40; ++i) {
-			if (student_list[i].num == chk_num && student_list[i].name == chk_name) {
-				student_list[i] = { 0 };
-				std::cout << "학생 정보가 삭제되었습니다.";
+		for (std::vector<Student>::iterator itr = students.begin(); itr != students.end(); itr++) {
+			if (((*itr).getStudent().first == chk_num) && ((*itr).getStudent().second == chk_name)) {
+				students.erase(itr);
+				std::cout << "학생 정보가 삭제되었습니다." << std::endl;
+				itr = students.begin();
 			}
 		}
+
+
+
 	}
 };
 
